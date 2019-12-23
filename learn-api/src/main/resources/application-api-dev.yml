@@ -1,0 +1,37 @@
+spring:
+  datasource:
+    name: dev
+    url: jdbc:log4jdbc:mysql://ns-ali123.top:3308/learn?characterEncoding=utf8&allowMultiQueries=true&serverTimezone=Asia/Shanghai
+    username: root
+    password: 9568
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: net.sf.log4jdbc.DriverSpy
+    druid:
+      filters:
+        stat:
+          enabled: true
+        wall:
+          enabled: true
+        log4j2:
+          enabled: true
+      maxActive: 20
+      initialSize: 1
+      maxWait: 60000
+      minIdle: 1
+      timeBetweenEvictionRunsMillis: 60000
+      minEvictableIdleTimeMillis: 300000
+      validationQuery: select 'x'
+      testWhileIdle: true
+      testOnBorrow: false
+      testOnReturn: false
+      poolPreparedStatements: true
+      maxOpenPreparedStatements: 20
+    jpa:
+      show-sql: true
+    main:
+      allow-bean-definition-overriding:
+        true
+  mapper:
+    not-empty: false
+    identity: MYSQL
+
