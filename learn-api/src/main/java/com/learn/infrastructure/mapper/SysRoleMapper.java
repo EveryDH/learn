@@ -1,42 +1,13 @@
-/**
- * MIT License
- * Copyright (c) 2018 yadong.zhang
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
 package com.learn.infrastructure.mapper;
-
 
 import com.learn.infrastructure.domain.beans.SysRole;
 import com.learn.infrastructure.domain.vo.RoleConditionVO;
-import org.springframework.stereotype.Repository;
-import tk.mybatis.mapper.common.BaseMapper;
+import org.apache.ibatis.annotations.Select;
 import tk.mybatis.mapper.common.Mapper;
 import tk.mybatis.mapper.common.MySqlMapper;
 
 import java.util.List;
 
-/**
- * @author yadong.zhang (yadong.zhang0415(a)gmail.com)
- * @website https://www.zhyd.me
- * @version 1.0
- * @date 2018/4/16 16:26
- * @since 1.0
- */
-@Repository
 public interface SysRoleMapper extends Mapper<SysRole>, MySqlMapper<SysRole> {
 
     /**
@@ -45,16 +16,48 @@ public interface SysRoleMapper extends Mapper<SysRole>, MySqlMapper<SysRole> {
      * @param vo
      * @return
      */
+    @Select("SELECT " +
+            " com.*  " +
+            "FROM " +
+            " sys_role com  " +
+            "WHERE " +
+            " 1 = 1 < IF test = \"keywords !=null and keywords != ''\" >  " +
+            " AND ( " +
+            " com.description LIKE CONCAT( '%', #{keywords , jdbcType=VARCHAR},'%') " +
+            " ) </ IF >  " +
+            "ORDER BY " +
+            " com.create_time DESC")
     List<SysRole> findPageBreakByCondition(RoleConditionVO vo);
 
-    /**
-     * 该节代码参考自http://blog.csdn.net/poorcoder_/article/details/71374002
-     * 感谢网友
-     *
-     * @param userId
-     * @return
-     */
+    @Select("SELECT " +
+            " r.id, " +
+            " r.NAME, " +
+            " r.description, " +
+            " ( " +
+            "CASE " +
+            "  " +
+            " WHEN ( SELECT ur.role_id FROM sys_user_role ur WHERE ur.user_id = #{userId} " +
+            " AND ur.role_id = r.id ) THEN " +
+            "  1 ELSE 0  " +
+            " END  " +
+            "  ) AS selected  " +
+            "FROM " +
+            " sys_role r  " +
+            "WHERE " +
+            "r.available = 1")
     List<SysRole> queryRoleListWithSelected(Integer userId);
 
+
+    @Select("SELECT " +
+            " r.id, " +
+            " r.NAME, " +
+            " r.description  " +
+            "FROM " +
+            " sys_role r " +
+            " INNER JOIN sys_user_role ur ON ur.role_id = r.id  " +
+            "WHERE " +
+            " ur.user_id = #{userId} " +
+            "  " +
+            " AND r.available = 1")
     List<SysRole> listRolesByUserId(Long userId);
 }

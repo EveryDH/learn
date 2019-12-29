@@ -34,4 +34,3 @@ spring:
   mapper:
     not-empty: false
     identity: MYSQL
-

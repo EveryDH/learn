@@ -37,6 +37,7 @@ import org.apache.shiro.web.filter.mgt.DefaultFilterChainManager;
 import org.apache.shiro.web.filter.mgt.PathMatchingFilterChainResolver;
 import org.apache.shiro.web.servlet.AbstractShiroFilter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -44,21 +45,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Shiro-权限相关的业务处理
- *
- * @author yadong.zhang (yadong.zhang0415(a)gmail.com)
- * @version 1.0
- * @website https://www.zhyd.me
- * @date 2018/4/25 14:37
- * @since 1.0
- */
 @Slf4j
 @Service
 public class ShiroServiceImpl implements ShiroService {
 
     @Autowired
     private SysResourcesService resourcesService;
+
     @Autowired
     private SysUserService userService;
 
@@ -73,25 +66,31 @@ public class ShiroServiceImpl implements ShiroService {
             - authc: 需要认证才能进行访问（此处指所有非匿名的路径都需要登陆才能访问）
             - user:配置记住我或认证通过可以访问
          */
-        Map<String, String> filterChainDefinitionMap = new LinkedHashMap<String, String>();
+        Map<String, String> filterChainMap = new LinkedHashMap<String, String>();
         // 配置退出过滤器,其中的具体的退出代码Shiro已经替我们实现了
-        filterChainDefinitionMap.put("/passport/logout", "logout");
-        filterChainDefinitionMap.put("/passport/login", "anon");
-        filterChainDefinitionMap.put("/passport/signin", "anon");
-        filterChainDefinitionMap.put("/favicon.ico", "anon");
-        filterChainDefinitionMap.put("/error", "anon");
-        filterChainDefinitionMap.put("/assets/**", "anon");
+        filterChainMap.put("/passport/logout", "logout");
+        filterChainMap.put("/passport/login", "anon");
+        filterChainMap.put("/passport/signin", "anon");
+        filterChainMap.put("/favicon.ico", "anon");
+        filterChainMap.put("/error", "anon");
+        filterChainMap.put("/assets/**", "anon");
+
+        filterChainMap.put("/swagger-ui.html", "anon");
+        filterChainMap.put("/webjars/**", "anon");
+        filterChainMap.put("/v2/**", "anon");
+        filterChainMap.put("/swagger-resources/**", "anon");
+        filterChainMap.put("/", "anon");
         // 加载数据库中配置的资源权限列表
         List<Resources> resourcesList = resourcesService.listUrlAndPermission();
         for (Resources resources : resourcesList) {
             if (!StringUtils.isEmpty(resources.getUrl()) && !StringUtils.isEmpty(resources.getPermission())) {
                 String permission = "perms[" + resources.getPermission() + "]";
-                filterChainDefinitionMap.put(resources.getUrl(), permission);
+                filterChainMap.put(resources.getUrl(), permission);
             }
         }
         // 本例子中并不存在什么特别关键的操作，所以直接使用user认证。如果有朋友是参考本例子的shiro开发其他安全功能（比如支付等）时，建议针对这类操作使用authc权限 by yadong.zhang
-        filterChainDefinitionMap.put("/**", "user");
-        return filterChainDefinitionMap;
+        filterChainMap.put("/**", "user");
+        return filterChainMap;
     }
 
     /**

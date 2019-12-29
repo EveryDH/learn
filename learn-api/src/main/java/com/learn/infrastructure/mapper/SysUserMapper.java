@@ -1,50 +1,66 @@
-/**
- * MIT License
- *
- * Copyright (c) 2018 yadong.zhang
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
 package com.learn.infrastructure.mapper;
-
 
 import com.learn.infrastructure.domain.beans.SysUser;
 import com.learn.infrastructure.domain.vo.UserConditionVO;
-import org.springframework.stereotype.Repository;
-import tk.mybatis.mapper.common.BaseMapper;
+import org.apache.ibatis.annotations.Select;
 import tk.mybatis.mapper.common.Mapper;
 import tk.mybatis.mapper.common.MySqlMapper;
 
 import java.util.List;
-
-/**
- * @author yadong.zhang (yadong.zhang0415(a)gmail.com)
- * @website https://www.zhyd.me
- * @version 1.0
- * @date 2018/4/16 16:26
- * @since 1.0
- */
-@Repository
 public interface SysUserMapper extends Mapper<SysUser>, MySqlMapper<SysUser> {
 
+    @Select("SELECT " +
+            "s.*  " +
+            "FROM " +
+            "sys_user s  " +
+            "WHERE " +
+            "1 = 1 < IF test = \"keywords != null and keywords != '' \" >  " +
+            "AND ( " +
+            "s.nickname LIKE CONCAT( " +
+            "'%',#{keywords , jdbcType=VARCHAR},'%') or " +
+            "s.mobile LIKE CONCAT( " +
+            "'%',#{keywords , jdbcType=VARCHAR},'%') or " +
+            "s.username LIKE CONCAT( " +
+            "'%',#{keywords , jdbcType=VARCHAR},'%') or " +
+            "s.PASSWORD LIKE CONCAT( " +
+            "'%',#{keywords , jdbcType=VARCHAR},'%') or " +
+            "s.email LIKE CONCAT( " +
+            "'%',#{keywords , jdbcType=VARCHAR},'%') or " +
+            "s.qq LIKE CONCAT( " +
+            "'%',#{keywords , jdbcType=VARCHAR},'%') or " +
+            "s.remark LIKE CONCAT( '%', #{keywords , jdbcType=VARCHAR},'%') or " +
+            ") </ IF > <! -- 查询用户信息 --> " +
+            "< IF test = \"user != null\" > < IF test = \"user.id!=null\" >  " +
+            "AND s.id = #{user.id} " +
+            "</ IF > < IF test = \"user.gender!=null\" >  " +
+            "AND s.gender = #{user.gender} " +
+            "</ IF > < IF test = \"user.userType!=null\" >  " +
+            "AND s.user_type = #{user.userType} " +
+            "</ IF > < IF test = \"user.username!=null\" >  " +
+            "AND s.username = #{user.username} " +
+            "</ IF > < IF test = \"user.password!=null\" >  " +
+            "AND s.PASSWORD = #{user.password} " +
+            "</ IF > < IF test = \"user.lastLoginIp!=null\" >  " +
+            "AND s.last_login_ip = #{user.lastLoginIp} " +
+            "</ IF > < IF test = \"user.lastLoginTime!=null\" >  " +
+            "AND s.last_login_time = #{user.lastLoginTime} " +
+            "</ IF > </ IF >  " +
+            "GROUP BY " +
+            "s.id  " +
+            "ORDER BY " +
+            "s.create_time DESC")
     List<SysUser> findPageBreakByCondition(UserConditionVO vo);
 
+
+    @Select("SELECT " +
+            "s.id, " +
+            "s.username, " +
+            "s.nickname  " +
+            "FROM " +
+            "sys_user s " +
+            "INNER JOIN sys_user_role sur ON sur.user_id = s.id  " +
+            "WHERE " +
+            "sur.role_id = #{roleId}")
     List<SysUser> listByRoleId(Long roleId);
 
 }

@@ -71,7 +71,7 @@ public class PassportController {
             // 每个Realm都能在必要时对提交的AuthenticationTokens作出反应
             // 所以这一步在调用login(token)方法时,它会走到xxRealm.doGetAuthenticationInfo()方法中,具体验证方式详见此方法
             currentUser.login(token);
-            return ResultUtil.success("登录成功！");
+            return ResultUtil.success("登录成功！",token);
         } catch (Exception e) {
             log.error("登录失败，用户名[{}]", username, e);
             token.clear();
